@@ -1,19 +1,8 @@
 import { Router } from 'express'
 import { createReflectionClient } from './utils/grpc';
-
+import { ServerReflectionResponse } from 'types';
 
 export const router = Router()
-
-interface ServicesResponse {
-  host: string
-  services: string[]
-}
-interface ServicesErrorResponse {
-  host: string
-  error: string
-}
-
-type ServerReflectionResponse = Array<ServicesResponse | ServicesErrorResponse>
 
 router.get('/reflection', async (req, res) => {
   const hosts = (Array.isArray(req.query['host']) ?  req.query['host'] : [req.query['host']])
@@ -89,13 +78,18 @@ router.get('/descriptor', async (req, res) => {
     .map(async item => {
       const descriptor = await connection.getDescriptorBySymbol(item)
 
-      return JSON.stringify(descriptor.getPackageDefinition(), (key, value)   => {
+      const definition = JSON.stringify(descriptor.getPackageDefinition(), (key, value)   => {
         if (key === 'fileDescriptorProtos') {
           return undefined
         }
 
         return value
       })
+
+      return {
+        service: item,
+        definition: definition
+      }
     })
   
   res.send(await Promise.all(result))

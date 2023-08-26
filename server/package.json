@@ -25,6 +25,7 @@
     "express": "^4.18.2",
     "google-protobuf": "^3.21.2",
     "grpc-js-reflection-client": "^1.2.6",
+    "types": "^1.0.0",
     "yarn": "^1.22.19"
   }
 }

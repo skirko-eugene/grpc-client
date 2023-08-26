@@ -19,7 +19,8 @@
   "homepage": "https://github.com/skirko-eugene/grpc-client#readme",
   "workspaces": [
     "client",
-    "server"
+    "server",
+    "types"
   ],
   "dependencies": {
     "tsx": "^3.12.7",
