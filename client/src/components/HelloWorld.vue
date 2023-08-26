@@ -21,10 +21,6 @@ function onHost(){
 
 const service = ref('')
 
-function selectService(serviceName: string) {
-  service.value = serviceName
-}
-
 const serviceParams = computed(() => {
   return {
     host: host.value,
@@ -78,9 +74,11 @@ function onCall(){
 
   <div v-for="host in data">
     <h2>{{host.host}}</h2>
-    <ul>
-      <li v-for="item in host.services" @click="selectService(item)">{{ item }}</li>
-    </ul>
+
+    <div>
+      <div v-for="item in host.services">
+        <input type="radio" v-model="service" :value="item"/>{{ item }}</div>
+    </div>
   </div>
 
   <template v-if="dData">
