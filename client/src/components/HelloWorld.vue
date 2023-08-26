@@ -87,9 +87,10 @@ function onCall(){
     {{ dData }}
     <div v-for="item in dData">
       <h2>Service {{ item.service }}</h2>
-      <ul>
-        <li v-for="methodData in getServiceMethods(item.def)" @click="method = methodData">method {{ methodData }}</li>
-      </ul>
+      <div>
+        <div v-for="methodData in getServiceMethods(item.def)">
+          <input type="radio" v-model="method" :value="methodData"/>{{ methodData }}</div>
+      </div>
     </div>
   
     <textarea v-model="params"/>
