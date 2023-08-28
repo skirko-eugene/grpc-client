@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { Ref, ref, computed } from 'vue'
+import { ref, computed, watch, } from 'vue'
 
 import { useReflection } from '../hooks/useReflection'
 import { useDescriptor } from '../hooks/useDescriptor'
 import { useCall } from '../hooks/useCall'
+import { useEditor } from '../hooks/useMonaco'
+import { useServiceMethods } from '../hooks/useServiceMethods'
 
 
-const host = ref('')
+const host = ref('localhost:50051')
 
 const {
   data,
-  isLoading,
+  // isLoading,
   mutateAsync,
 } = useReflection()
 
@@ -29,39 +31,74 @@ const serviceParams = computed(() => {
 })
 
 const {
-  isLoading: dIsLoading,
   data: dData,
 } = useDescriptor(serviceParams)
 
-function getServiceMethods(data: any){
-  console.log(data)
-  const service = Object.entries(data)
-    ?.find(([key, obj]) => {
-      if (!obj['format']) {
-        return obj
-      }
-    })
 
-  if (!service) {
-    return []
-  }
-  const [name, obj] = service
-  return Object.keys(obj)
-}
+const mapped = useServiceMethods(dData)
 
 
 const {
-  isLoading: callIsLoading,
+  // isLoading: callIsLoading,
   data: callData,
   mutateAsync: callMutateAsync,
 } = useCall()
 
+const methods = computed(() => {
+  return mapped.value
+    ?.find(item => item?.service === service.value)
+    ?.methods
+})
 
 const method = ref('')
-const params = ref('')
+
+const selectedMethodDefinition = computed(() => {
+  return methods.value?.find(item => item[0] === method.value);
+})
 
 function onCall(){
-  callMutateAsync({host: host.value, service: service.value, method: method.value, params: params.value})
+  callMutateAsync({
+    host: host.value,
+    service: service.value,
+    method: method.value,
+    params: JSON.parse(value() ?? '{}'),
+  })
+}
+
+const el = ref<HTMLElement>()
+const {
+  value,
+  schema,
+} = useEditor(el)
+
+watch(selectedMethodDefinition, (def) => {
+  if (!def) {
+    schema.value = {}
+    return
+  }
+
+  const [, methodDef] = def
+
+  schema.value = methodDef.requestType.type.field.reduce((acc, item) => {
+    acc.properties[item.name] = {
+      type: mapType(item.type) || item.typeName
+    }
+
+    return acc
+  }, {
+    type: 'object',
+    properties: {}
+  } as Record<string, any>)
+})
+
+function mapType(type: string,) {
+  switch (type) {
+    case "TYPE_STRING":
+      return 'string'
+  
+    default:
+      break;
+  }
 }
 
 </script>
@@ -75,33 +112,38 @@ function onCall(){
   <div v-for="host in data">
     <h2>{{host.host}}</h2>
 
-    <div>
+    <div v-if="'services' in host">
       <div v-for="item in host.services">
         <input type="radio" v-model="service" :value="item"/>{{ item }}</div>
     </div>
   </div>
 
   <template v-if="dData">
-    {{ dData }}
     <div v-for="item in dData">
       <h2>Service {{ item.service }}</h2>
+      {{ methods }}
       <div>
-        <div v-for="methodData in getServiceMethods(item.def)">
-          <input type="radio" v-model="method" :value="methodData"/>{{ methodData }}</div>
+        <div v-for="methodData in methods">
+          <input type="radio" v-model="method" :value="methodData[0]"/>{{ methodData[0] }}</div>
       </div>
     </div>
-  
-    <textarea v-model="params"/>
+    
+    <div
+      v-if="method"
+      style="width: 600px; height: 300px; text-align: left;"
+      ref="el"
+    >
+    </div>
   
     <button @click="onCall">Отправить</button>
-  
-    {{ callData }}
+    <div>
+      <h4>Ответ</h4>
+      {{ callData }}
+    </div>
   </template>
 
 </template>
 
 <style scoped>
-.read-the-docs {
-  color: #888;
-}
+
 </style>

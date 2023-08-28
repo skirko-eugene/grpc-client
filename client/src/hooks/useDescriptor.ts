@@ -13,29 +13,17 @@ export const useDescriptor = (value: Ref<ArgType<typeof descriptor>>) => {
     data,
   } = useQuery(
     ['descriptor', value],
-    (q) => {
-      const [, data] = q.queryKey
-      return descriptor(data)
+    () => {
+      return descriptor(value.value)
     },
     {
       enabled: isEnabled
     }
   )
 
-  const parsedData = computed(() => {
-    return data.value ? data.value.map((item: string) => {
-      return {
-        // @ts-ignore
-        service: item.service,
-        // @ts-ignore
-        def: JSON.parse(item.definition),
-      }
-    }) : undefined
-  })
-
   return {
     isLoading,
     isSuccess,
-    data: parsedData,
+    data,
   }
 }
