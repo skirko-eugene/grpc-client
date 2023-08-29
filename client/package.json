@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@tanstack/vue-query": "^4.34.0",
-    "monaco-editor": "^0.41.0",
+    "monaco-editor": "^0.40.0",
     "types": "^1.0.0",
     "vue": "^3.3.4"
   },

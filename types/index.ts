@@ -1,9 +1,9 @@
 
-interface ServicesResponse {
+export interface ServicesResponse {
   host: string
   services: string[]
 }
-interface ServicesErrorResponse {
+export interface ServicesErrorResponse {
   host: string
   error: string
 }

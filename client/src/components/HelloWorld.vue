@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, } from 'vue'
+import { ref, computed, watch, } from 'vue'
 
 import { useReflection } from '../hooks/useReflection'
 import { useDescriptor } from '../hooks/useDescriptor'
 import { useCall } from '../hooks/useCall'
 import { useEditor } from '../hooks/useMonaco'
 import { useServiceMethods } from '../hooks/useServiceMethods'
-
 
 const host = ref('localhost:50051')
 
@@ -16,17 +15,27 @@ const {
   mutateAsync,
 } = useReflection()
 
+onHost()
+
 function onHost(){
-  mutateAsync([host.value]);
+  if (host.value)
+    mutateAsync([host.value]);
 }
 
+const hostServices = computed(() => {
+  const hostData = data.value?.find(item => host.value === item.host)
 
-const service = ref('')
+  if (!hostData) {
+    return null
+  }
+
+  return 'services' in hostData ? hostData: null
+})
 
 const serviceParams = computed(() => {
   return {
     host: host.value,
-    service: service.value,
+    services: hostServices.value?.services ?? []
   }
 })
 
@@ -44,16 +53,54 @@ const {
   mutateAsync: callMutateAsync,
 } = useCall()
 
-const methods = computed(() => {
-  return mapped.value
-    ?.find(item => item?.service === service.value)
-    ?.methods
+const inputSelectValue = ref('')
+
+const serviceWithMethods = computed(() => {
+  return dData.value?.map(service => {
+    
+    const methods = mapped.value
+      ?.find(item => item?.service === service.service)
+      ?.methods
+    return {
+      service: service.service,
+      methods
+    }
+  })
 })
 
-const method = ref('')
+watch(serviceWithMethods, (data) => {
+  if (!data) {
+    return
+  }
+
+  if (inputSelectValue.value) {
+    return
+  }
+
+  if (!data[0]) {
+    return 
+  }
+  if (!data[0].methods) {
+    return
+  }
+
+  inputSelectValue.value = data[0].service + ':' + data[0].methods[0][0]
+})
+
+
+
+const service = computed(() => {
+  return inputSelectValue.value.split(':')[0]
+})
+const method = computed(() => {
+  return inputSelectValue.value.split(':')[1]
+})
 
 const selectedMethodDefinition = computed(() => {
-  return methods.value?.find(item => item[0] === method.value);
+  const serv = serviceWithMethods.value?.find(item => item.service === service.value)
+  const metd = serv?.methods?.find(item => item[0] === method.value)
+
+  return metd
 })
 
 function onCall(){
@@ -70,6 +117,14 @@ const {
   value,
   schema,
 } = useEditor(el)
+
+const el2 = ref<HTMLElement>()
+const {
+  schema: sservices,
+} = useEditor(el2)
+sservices.value = {
+  type: 'object',
+}
 
 watch(selectedMethodDefinition, (def) => {
   if (!def) {
@@ -109,22 +164,13 @@ function mapType(type: string,) {
     <button>Отправить</button>
   </form>
 
-  <div v-for="host in data">
-    <h2>Services</h2>
-
-    <div v-if="'services' in host">
-      <div v-for="item in host.services">
-        <input type="radio" v-model="service" :value="item"/>{{ item }}</div>
-    </div>
-  </div>
+  <select v-model="inputSelectValue" v-if="data && dData">
+    <optgroup v-for="item in serviceWithMethods" :label="item.service">
+      <option v-for="method in item.methods" :value="item.service + ':' + method[0]">{{ method[0] }}</option>
+    </optgroup>
+  </select>
 
   <template v-if="dData">
-    <h2>Methods</h2>
-    <div>
-      <div v-for="methodData in methods">
-        <input type="radio" v-model="method" :value="methodData[0]"/>{{ methodData[0] }}</div>
-    </div>
-    
     <div
       v-if="method"
       style="width: 600px; height: 300px; text-align: left;"
@@ -138,6 +184,12 @@ function mapType(type: string,) {
       {{ callData }}
     </div>
   </template>
+  <div
+    ref="el2"
+    style="width: 600px; height: 300px; text-align: left;"
+  >
+
+  </div>
 
 </template>
 

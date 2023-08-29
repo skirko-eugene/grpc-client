@@ -1,5 +1,5 @@
 import * as monaco from 'monaco-editor'
-import {watch, Ref, ref, shallowRef,} from 'vue'
+import {watch, Ref, ref, shallowRef, onUnmounted,} from 'vue'
 
 let counter = 0
 // @ts-ignore
@@ -8,7 +8,8 @@ window.monaco = monaco
 export const useEditor = (el: Ref<HTMLElement | undefined>) => {
   const editor = shallowRef<monaco.editor.IStandaloneCodeEditor>()
   const schema = ref<unknown>()
-  const uri = monaco.Uri.parse(`a://input${counter++}.json`)
+  const name = `input${counter++}.json`
+  const uri = monaco.Uri.parse(`file:///jsons/${name}`)
 
   watch(schema, (schema) => {
     if (!schema) {
@@ -19,8 +20,8 @@ export const useEditor = (el: Ref<HTMLElement | undefined>) => {
     })
 
     const item = {
-      uri: '',
-      fileMatch: ['*'],
+      uri: uri.toString() + 'schema',
+      fileMatch: [name],
       schema: JSON.parse(JSON.stringify(schema))
     }
 
@@ -34,6 +35,7 @@ export const useEditor = (el: Ref<HTMLElement | undefined>) => {
       monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
         validate: true,
         schemas: monaco.languages.json.jsonDefaults.diagnosticsOptions.schemas,
+        schemaValidation: 'error',
       })
 
     } else {
@@ -46,21 +48,38 @@ export const useEditor = (el: Ref<HTMLElement | undefined>) => {
         schemas: schema
       })
     }
-
   }, {
     immediate: true,
   })
+
+
+  const event = window.matchMedia('(prefers-color-scheme: dark)')
+
+  const theme = ref<'vs-dark' | 'vs'>('vs')
+  const onChange = (event: MediaQueryListEvent | MediaQueryList) => {
+    theme.value = event.matches ? 'vs-dark' : 'vs';
+  }
+  onChange(event)
+  event.addEventListener('change', onChange);
+  
+  onUnmounted(() => {
+    event.removeEventListener('change', onChange);
+  })
+
+  watch(theme, data => {
+    monaco.editor.setTheme(data)
+  })
+
 
   watch(el, async (el) => {
     if (!el) {
       return
     }
-    debugger
+    const model = monaco.editor.createModel('{\n\t\n}', 'json', uri)
+
     editor.value = monaco.editor.create(el, {
-      language: 'json',
-      value: '{\n\t\n}',
-      
-      // model: monaco.editor.createModel('{\n\t\n}', "json", uri)
+      model,
+      theme: theme.value
     });
 
     return () => {
