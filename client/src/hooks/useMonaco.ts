@@ -1,11 +1,16 @@
 import * as monaco from 'monaco-editor'
-import {watch, Ref, ref, shallowRef, onUnmounted,} from 'vue'
+import {watch, Ref, ref, shallowRef, onUnmounted, computed,} from 'vue'
 
 let counter = 0
 // @ts-ignore
 window.monaco = monaco
 
-export const useEditor = (el: Ref<HTMLElement | undefined>) => {
+interface Props {
+  defaultValue?: string
+  readonly?: boolean
+}
+
+export const useEditor = (el: Ref<HTMLElement | undefined>, options?: Props) => {
   const editor = shallowRef<monaco.editor.IStandaloneCodeEditor>()
   const schema = ref<unknown>()
   const name = `input${counter++}.json`
@@ -61,7 +66,7 @@ export const useEditor = (el: Ref<HTMLElement | undefined>) => {
   }
   onChange(event)
   event.addEventListener('change', onChange);
-  
+
   onUnmounted(() => {
     event.removeEventListener('change', onChange);
   })
@@ -75,11 +80,12 @@ export const useEditor = (el: Ref<HTMLElement | undefined>) => {
     if (!el) {
       return
     }
-    const model = monaco.editor.createModel('{\n\t\n}', 'json', uri)
+    const model = monaco.editor.createModel(options?.defaultValue ?? '', 'json', uri)
 
     editor.value = monaco.editor.create(el, {
       model,
-      theme: theme.value
+      theme: theme.value,
+      readOnly: options?.readonly
     });
 
     return () => {
@@ -89,13 +95,22 @@ export const useEditor = (el: Ref<HTMLElement | undefined>) => {
     immediate: true,
   })
 
+  const value = computed<string>({
+    get(){
+      const ed = editor.value
+      
+      return ed?.getValue() ?? '';
+    },
+    set(val: string){
+      const ed = editor.value
+      
+      return ed?.setValue(val)
+    }
+  })
+
   return {
     editor,
     schema,
-    value: function getValue() {
-      const ed = editor.value
-      
-      return ed?.getValue();
-    }
+    value,
   }
 }

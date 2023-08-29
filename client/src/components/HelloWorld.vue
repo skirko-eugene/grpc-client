@@ -108,7 +108,7 @@ function onCall(){
     host: host.value,
     service: service.value,
     method: method.value,
-    params: JSON.parse(value() ?? '{}'),
+    params: JSON.parse(value.value ?? '{}'),
   })
 }
 
@@ -116,15 +116,25 @@ const el = ref<HTMLElement>()
 const {
   value,
   schema,
-} = useEditor(el)
+} = useEditor(el, {
+  defaultValue: '{\n\t\n}'
+})
 
 const el2 = ref<HTMLElement>()
 const {
   schema: sservices,
-} = useEditor(el2)
+  value: svalue,
+} = useEditor(el2, {
+  readonly: true,
+})
+
 sservices.value = {
   type: 'object',
 }
+
+watch(callData, data => {
+  svalue.value = JSON.stringify(data, null, 2)
+})
 
 watch(selectedMethodDefinition, (def) => {
   if (!def) {
@@ -179,10 +189,7 @@ function mapType(type: string,) {
     </div>
   
     <button @click="onCall">Отправить</button>
-    <div>
-      <h4>Ответ</h4>
-      {{ callData }}
-    </div>
+
   </template>
   <div
     ref="el2"
