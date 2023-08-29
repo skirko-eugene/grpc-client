@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, } from 'vue'
+import { ref, computed, watch, onMounted, } from 'vue'
 
 import { useReflection } from '../hooks/useReflection'
 import { useDescriptor } from '../hooks/useDescriptor'
@@ -110,7 +110,7 @@ function mapType(type: string,) {
   </form>
 
   <div v-for="host in data">
-    <h2>{{host.host}}</h2>
+    <h2>Services</h2>
 
     <div v-if="'services' in host">
       <div v-for="item in host.services">
@@ -119,13 +119,10 @@ function mapType(type: string,) {
   </div>
 
   <template v-if="dData">
-    <div v-for="item in dData">
-      <h2>Service {{ item.service }}</h2>
-      {{ methods }}
-      <div>
-        <div v-for="methodData in methods">
-          <input type="radio" v-model="method" :value="methodData[0]"/>{{ methodData[0] }}</div>
-      </div>
+    <h2>Methods</h2>
+    <div>
+      <div v-for="methodData in methods">
+        <input type="radio" v-model="method" :value="methodData[0]"/>{{ methodData[0] }}</div>
     </div>
     
     <div
