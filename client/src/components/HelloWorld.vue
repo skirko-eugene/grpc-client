@@ -169,37 +169,83 @@ function mapType(type: string,) {
 </script>
 
 <template>
-  <form @submit.prevent="onHost">
-    <input v-model="host"/>
-    <button>Отправить</button>
-  </form>
+  <div class="page">
 
-  <select v-model="inputSelectValue" v-if="data && dData">
-    <optgroup v-for="item in serviceWithMethods" :label="item.service">
-      <option v-for="method in item.methods" :value="item.service + ':' + method[0]">{{ method[0] }}</option>
-    </optgroup>
-  </select>
-
-  <template v-if="dData">
-    <div
-      v-if="method"
-      style="width: 600px; height: 300px; text-align: left;"
-      ref="el"
-    >
+    <div class="halfPage">
+      <form @submit.prevent="onHost">
+        <input type="text" v-model="host"/>
+        <button>Получить</button>
+      </form>
+    
+      <select v-model="inputSelectValue" v-if="data && dData">
+        <optgroup v-for="item in serviceWithMethods" :label="item.service">
+          <option v-for="method in item.methods" :value="item.service + ':' + method[0]">{{ method[0] }}</option>
+        </optgroup>
+      </select>
+    
+      <template v-if="dData">
+        <div
+          v-if="method"
+          style="width: 100%; height: 300px;"
+          ref="el"
+        >
+        </div>
+      
+        <button @click="onCall">Отправить</button>
+    
+      </template>
     </div>
+    <div
+      ref="el2"
+      class="halfPage"
+    >
   
-    <button @click="onCall">Отправить</button>
-
-  </template>
-  <div
-    ref="el2"
-    style="width: 600px; height: 300px; text-align: left;"
-  >
-
+    </div>
   </div>
 
 </template>
 
 <style scoped>
+.page {
+  display: flex;
+  border-top: 12px solid #333;
+}
+.halfPage {
+  width: 50%;
+  height: 100vh;
+}
+form {
+  width: 100%;
+  background: #333;
+  
+  display: flex;
+  align-items: center;
+}
+
+input[type="text"] {
+  flex-grow: 1;
+  border: none;
+  /* border: 1px solid red; */
+  border-radius: 3px;
+  box-sizing: border-box;
+  margin: 6px 8px;
+  padding: 4px 20px;
+  color: #aaa;
+
+  box-shadow: none;
+
+  font: inherit;
+  font-size: 15px;
+}
+input[type="text"]:focus {
+  color: #fff;
+}
+
+form button {
+  padding: 0px 10px;
+  margin: 3px 8px 3px 0;
+  height: 32px;
+  border-radius: 3px;
+}
 
 </style>

@@ -23,7 +23,6 @@ const activeTab = ref(tabs[0].id)
 <template>
   <div>
     <Tabs v-model="activeTab" :tabs="tabs"/>
-    {{ activeTab }}
   </div>
 </template>
 
