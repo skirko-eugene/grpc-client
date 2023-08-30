@@ -61,8 +61,8 @@ button:focus-visible {
 }
 
 :root {
-  --color-1: 33, 53, 71;
-  --color-2: 43, 63, 85;
+  --color-1: 37, 38, 39;
+  --color-2: 45, 47, 49;
   --color-font: 255, 255, 255;
 
   color: rgba(var(--color-font), 0.87);
