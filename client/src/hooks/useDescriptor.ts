@@ -30,6 +30,10 @@ export const useDescriptor = (value: Ref<ArgType<typeof descriptor>>) => {
   return {
     isLoading,
     isSuccess,
-    data,
+    data: computed(() => {
+      return data.value?.filter(item => {
+        return item.service !== 'grpc.reflection.v1alpha.ServerReflection'
+      })
+    }),
   }
 }
