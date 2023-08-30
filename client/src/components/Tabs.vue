@@ -64,6 +64,7 @@ const emit = defineEmits<{
   min-width: 130px;
 
   display: flex;
+  align-items: center;
   justify-content: space-between;
   cursor: pointer;
 }
@@ -76,6 +77,8 @@ const emit = defineEmits<{
   display: flex;
   cursor: pointer;
   transition: opacity .2s ease;
+
+  margin: 7px 2px;
 }
 
 .Tabs__create:hover {
