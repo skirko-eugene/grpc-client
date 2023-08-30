@@ -48,9 +48,9 @@ const emit = defineEmits<{
 
 .Tabs__tab {
   margin-right: 4px;
-  padding: 10px 12px;
-  border-radius: 8px 8px 0 0;
-  background-color: cadetblue;
+  padding: 10px 4px 10px 12px;
+  /* border-radius: 8px 8px 0 0; */
+  background-color: rgb(var(--color-2));
   min-width: 130px;
 
   display: flex;
@@ -64,7 +64,7 @@ const emit = defineEmits<{
 
 .Tabs__close {
   padding: 2px;
-  border-radius: 3px;
+  border-radius: 4px;
   margin-left: 6px;
 }
 

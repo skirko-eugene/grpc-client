@@ -8,6 +8,8 @@ window.monaco = monaco
 interface Props {
   defaultValue?: string
   readonly?: boolean
+  minimap?: boolean
+  contextmenu?: boolean
 }
 
 export const useEditor = (el: Ref<HTMLElement | undefined>, options?: Props) => {
@@ -85,7 +87,11 @@ export const useEditor = (el: Ref<HTMLElement | undefined>, options?: Props) => 
     editor.value = monaco.editor.create(el, {
       model,
       theme: theme.value,
-      readOnly: options?.readonly
+      readOnly: options?.readonly,
+      minimap: {
+        enabled: options?.minimap,
+      },
+      contextmenu: options?.contextmenu,
     });
 
     return () => {

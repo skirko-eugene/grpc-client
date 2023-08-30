@@ -116,8 +116,29 @@ const el = ref<HTMLElement>()
 const {
   value,
   schema,
+  editor,
 } = useEditor(el, {
-  defaultValue: '{\n\t\n}'
+  defaultValue: '{\n\t\n}',
+  contextmenu: false,
+  minimap: false,
+})
+
+import { KeyCode, KeyMod } from 'monaco-editor'
+watch(editor, item => {
+  if (!item) {
+    return
+  }
+  
+  item.addAction({
+    id: "executeCurrentAndAdvance",
+    label: "Execute Block and Advance",
+    keybindings: [KeyMod.CtrlCmd | KeyCode.Enter],
+    contextMenuGroupId: "2_execution",
+    // precondition: blockContext,
+    run: () => {
+        onCall()
+    },
+  })
 })
 
 const el2 = ref<HTMLElement>()
@@ -126,6 +147,7 @@ const {
   value: svalue,
 } = useEditor(el2, {
   readonly: true,
+  minimap: false,
 })
 
 sservices.value = {
@@ -171,13 +193,14 @@ function mapType(type: string,) {
 <template>
   <div class="page">
 
-    <div class="halfPage">
-      <form @submit.prevent="onHost">
-        <input type="text" v-model="host"/>
-        <button>Получить</button>
-      </form>
+    <form @submit.prevent="onHost">
+      <input type="text" v-model="host"/>
+      <button>Получить</button>
+    </form>
+
+    <div class="left-side">
     
-      <select v-model="inputSelectValue" v-if="data && dData">
+      <select class="service-picker" v-model="inputSelectValue" v-if="data && dData">
         <optgroup v-for="item in serviceWithMethods" :label="item.service">
           <option v-for="method in item.methods" :value="item.service + ':' + method[0]">{{ method[0] }}</option>
         </optgroup>
@@ -186,51 +209,57 @@ function mapType(type: string,) {
       <template v-if="dData">
         <div
           v-if="method"
-          style="width: 100%; height: 300px;"
           ref="el"
-        >
-        </div>
-      
-        <button @click="onCall">Отправить</button>
-    
+          class="editor"
+        ></div>
       </template>
     </div>
     <div
       ref="el2"
-      class="halfPage"
-    >
-  
-    </div>
+      class="right-side editor"
+    ></div>
   </div>
 
 </template>
 
 <style scoped>
 .page {
-  display: flex;
-  border-top: 12px solid #333;
+  display: grid;
+  grid-template-areas: 
+    "topline topline"
+    "left-side right-side"
+  ;
+  grid-template-columns: 50% 50%;
 }
-.halfPage {
-  width: 50%;
-  height: 100vh;
+
+.left-side {
+  grid-area: left-side;
+  position: relative;
 }
+
+.right-side {
+  grid-area: right-side;
+  height: 500px;
+}
+
 form {
   width: 100%;
-  background: #333;
+  background: rgb(var(--color-2));
   
   display: flex;
   align-items: center;
+  grid-area: topline;
 }
 
 input[type="text"] {
-  flex-grow: 1;
+  flex-grow: 0.4;
   border: none;
   /* border: 1px solid red; */
   border-radius: 3px;
   box-sizing: border-box;
   margin: 6px 8px;
   padding: 4px 20px;
-  color: #aaa;
+  color: rgba(var(--color-font), .6);
 
   box-shadow: none;
 
@@ -238,7 +267,7 @@ input[type="text"] {
   font-size: 15px;
 }
 input[type="text"]:focus {
-  color: #fff;
+  color: rgb(var(--color-font));
 }
 
 form button {
@@ -246,6 +275,22 @@ form button {
   margin: 3px 8px 3px 0;
   height: 32px;
   border-radius: 3px;
+}
+
+.editor {
+  width: 100%;
+  height: 300px;
+}
+.left-side {
+  border-right: 4px solid rgb(var(--color-2));
+}
+
+.service-picker {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  z-index: 99;
+  min-width: 100px;
 }
 
 </style>
