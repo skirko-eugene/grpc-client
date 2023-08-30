@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import CloseIcon from '../icons/Close.vue'
+import PlusCircle from '../icons/PlusCircle.vue'
+
 export interface Props {
   modelValue: string;
   tabs: Tab[]
@@ -15,8 +17,8 @@ const props = defineProps<Props>();
 const emit = defineEmits<{
   (e: 'update:modelValue', id: string): void
   (e: 'close', id: string): void
+  (e: 'create'): void
 }>();
-
 
 </script>
 
@@ -38,18 +40,26 @@ const emit = defineEmits<{
         @click.stop="emit('close', item.id)"
       />
     </div>
+
+    <div
+      class="Tabs__create"
+      @click="emit('create')">
+      <PlusCircle
+        class="Tabs__create-icon"
+      />
+    </div>
   </div>
 </template>
 
 <style scoped>
 .Tabs {
   display: flex;
+  align-items: center;
 }
 
 .Tabs__tab {
   margin-right: 4px;
   padding: 10px 4px 10px 12px;
-  /* border-radius: 8px 8px 0 0; */
   background-color: rgb(var(--color-2));
   min-width: 130px;
 
@@ -60,6 +70,20 @@ const emit = defineEmits<{
 
 .Tabs__tab--active {
   background-color: cornflowerblue;
+}
+
+.Tabs__create {
+  display: flex;
+  cursor: pointer;
+  transition: opacity .2s ease;
+}
+
+.Tabs__create:hover {
+  opacity: .6;
+}
+
+.Tabs__create-icon {
+  padding: 5px;
 }
 
 .Tabs__close {

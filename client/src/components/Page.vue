@@ -1,28 +1,29 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import Tabs, { Tab } from './Tabs.vue'
+import { computed, ref, watch } from 'vue';
+import Tabs from './Tabs.vue'
+import HelloWorld from './HelloWorld.vue';
+import { useTabs, } from '../hooks/useTabs'
 
-const tabs: Tab[] = [
-  {
-    id: '1',
-    title: '123'
-  },
-  {
-    id: '2',
-    title: '2222'
-  },
-  {
-    id: '3',
-    title: '4444'
-  },
-]
+const {
+  tabsData: tabs,
+  create,
+  del,
+  activeTab,
+} = useTabs()
 
-const activeTab = ref(tabs[0].id)
+
+
 </script>
 
 <template>
   <div>
-    <Tabs v-model="activeTab" :tabs="tabs"/>
+    <Tabs
+      v-model="activeTab"
+      :tabs="tabs"
+      @create="create"
+      @close="del($event)"
+    />
+    <HelloWorld />
   </div>
 </template>
 
