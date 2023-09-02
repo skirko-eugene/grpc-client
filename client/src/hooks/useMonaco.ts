@@ -1,5 +1,5 @@
 import * as monaco from 'monaco-editor'
-import {watch, Ref, ref, shallowRef, onUnmounted, computed,} from 'vue'
+import {watch, Ref, ref, shallowRef, onUnmounted, computed, MaybeRef,} from 'vue'
 
 let counter = 0
 // @ts-ignore
@@ -10,15 +10,20 @@ interface Props {
   readonly?: boolean
   minimap?: boolean
   contextmenu?: boolean
+  schema: MaybeRef<any>
 }
 
 export const useEditor = (el: Ref<HTMLElement | undefined>, options?: Props) => {
   const editor = shallowRef<monaco.editor.IStandaloneCodeEditor>()
-  const schema = ref<unknown>()
+  const schema = options?.schema ?? {}
   const name = `input${counter++}.json`
   const uri = monaco.Uri.parse(`file:///jsons/${name}`)
 
+  console.log(schema);
+  
   watch(schema, (schema) => {
+    console.log(schema, '====');
+    
     if (!schema) {
       return
     }

@@ -1,5 +1,5 @@
 import { useLocalStorage } from '@vueuse/core'
-import { computed, watch } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 
 export type Host = string & {}
 export type ServiceName = string & {}
@@ -19,49 +19,71 @@ export type TabData = {
 type TabsData = TabData[]
 
 export function useTabs() {
-  const activeTab = useLocalStorage<string>(
-    'activeTab',
+  const activeTabID = useLocalStorage<string>(
+    'activeTabID',
     '',
   )
 
   const tabsData = useLocalStorage<TabsData>(
     'tabsData',
     [],
+    {
+      deep: true,
+    }
   )
 
+  if (!tabsData.value.length) {
+    create();
+  }
+  if (!activeTabID.value) {
+    activeTabID.value = tabsData.value[0].id
+  }
+
+  const activeTab = computed(() => {
+    return tabsData.value.find(tab => tab.id === activeTabID.value)!
+  })
+
   function del(id: string) {
-    const index = tabsData.value.findIndex(item => item.id === id)
-    tabsData.value.splice(index, 1)
-    if (id === activeTab.value) {
-      activeTab.value = ''
+    if (tabsData.value.length === 1) {
+      return
     }
+
+    const index = tabsData.value.findIndex(item => item.id === id)
+    
+    if (id === activeTabID.value) {
+      if (index === 0) {
+        activeTabID.value = tabsData.value[1].id
+      } else {
+        activeTabID.value = tabsData.value[index - 1].id
+      }
+    }
+    
+    tabsData.value.splice(index, 1)
+    
   }
 
   function create(){
+    const {
+      length,
+      [length - 1]: lastTab,
+    } = tabsData.value
+
     const newItem = {
       id: 'tab' + Date.now(),
       title: 'Новый таб' + ' ' + tabsData.value.length,
-      host: '',
+      host: lastTab.host,
       service: '',
       method: '',
       params: '',
       result: '',
     }
-    activeTab.value = newItem.id
+
     tabsData.value.push(newItem)
+    activeTabID.value = newItem.id
   }
 
-  watch(tabsData, tabs => {
-    if (!activeTab.value) {
-      if (tabs[0]?.id) {
-        activeTab.value = tabs[0].id
-      }
-    }
-  }, {
-    immediate: true,
-  })
-
   return {
+    activeTabID,
     activeTab,
     tabsData,
     del,

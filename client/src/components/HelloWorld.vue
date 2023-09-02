@@ -6,6 +6,7 @@ import { useDescriptor } from '../hooks/useDescriptor'
 import { useCall } from '../hooks/useCall'
 import { useEditor } from '../hooks/useMonaco'
 import { useServiceMethods } from '../hooks/useServiceMethods'
+import { KeyCode, KeyMod } from 'monaco-editor'
 
 const host = ref('localhost:50051')
 
@@ -123,7 +124,6 @@ const {
   minimap: false,
 })
 
-import { KeyCode, KeyMod } from 'monaco-editor'
 watch(editor, item => {
   if (!item) {
     return
@@ -134,7 +134,6 @@ watch(editor, item => {
     label: "Execute Block and Advance",
     keybindings: [KeyMod.CtrlCmd | KeyCode.Enter],
     contextMenuGroupId: "2_execution",
-    // precondition: blockContext,
     run: () => {
         onCall()
     },

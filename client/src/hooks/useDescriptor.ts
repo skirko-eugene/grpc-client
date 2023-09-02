@@ -4,8 +4,11 @@ import { Ref, computed } from "vue"
 
 type ArgType<T> = T extends (arg: infer R) => any ? R : never
 
-export const useDescriptor = (value: Ref<ArgType<typeof descriptor>>) => {
+export const useDescriptor = (value: Ref<ArgType<typeof descriptor> | undefined>) => {
   const isEnabled = computed(() => {
+    if (!value.value) {
+      return false
+    }
     if ('service' in value.value) {
       return Boolean(value.value.host && value.value.service)
     } else {
@@ -20,7 +23,7 @@ export const useDescriptor = (value: Ref<ArgType<typeof descriptor>>) => {
   } = useQuery(
     ['descriptor', value],
     () => {
-      return descriptor(value.value)
+      return descriptor(value.value!)
     },
     {
       enabled: isEnabled

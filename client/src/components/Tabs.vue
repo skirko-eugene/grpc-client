@@ -37,6 +37,7 @@ const emit = defineEmits<{
 
       <CloseIcon 
         class="Tabs__close"
+        v-if="tabs.length > 1"
         @click.stop="emit('close', item.id)"
       />
     </div>
