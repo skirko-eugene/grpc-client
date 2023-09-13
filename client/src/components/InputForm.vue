@@ -2,7 +2,7 @@
   <div class="InputForm">
     <select class="InputForm__method-picker" v-model="inputSelectValue">
       <optgroup v-for="item in services" :label="item.service">
-        <option v-for="method in item.methods" :value="{service: item.service, method}">{{ method }}</option>
+        <option v-for="method in item.methods" :value="item.service + ':' + method">{{ method }}</option>
       </optgroup>
     </select>
   
@@ -42,10 +42,17 @@ const emit = defineEmits<{
 
 const inputSelectValue = computed({
   get(){
-    return props.selected
+    return props.selected.service + ':' + props.selected.method
   },
   set(val){
-    emit('update:selected', val)
+    const [service, method] = val.split(':')
+
+    const newValue: SelectedModel = {
+      service,
+      method,
+    }
+
+    emit('update:selected', newValue)
   }
 })
 

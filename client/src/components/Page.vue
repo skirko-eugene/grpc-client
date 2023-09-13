@@ -1,3 +1,29 @@
+<template>
+  <div>
+    <Tabs
+      v-model="activeTabID"
+      :tabs="tabs"
+      @create="create"
+      @close="del($event)"
+    />
+    <TopBar :host="activeTab?.host" @host="onHost"/>
+    <InputForm
+      v-if="servicesAndMethods && SelectedMethod"
+      :selected="SelectedMethod"
+      @update:selected="onSelect"
+
+      :services="servicesAndMethods"
+
+      :params-value="activeTab.params"
+      @update:params-value="onSubmitParams"
+
+      :json-schema="schema"
+    />
+    <div>{{ callData }}</div>
+    <!-- <HelloWorld /> -->
+  </div>
+</template>
+
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { useTabs, } from '../hooks/useTabs'
@@ -18,13 +44,16 @@ const {
   activeTab,
 } = useTabs()
 
-const SelectedMethod = ref<SelectedModel>({
-  service: activeTab.value.service,
-  method: activeTab.value.method
-})
+const SelectedMethod = ref<SelectedModel>()
+
+if (activeTab.value && activeTab.value.service && activeTab.value.method) {
+  SelectedMethod.value = {
+    service: activeTab.value.service,
+    method: activeTab.value.method
+  }
+}
 
 watch(SelectedMethod, SelectedMethod => {
-  debugger
   Object.assign(activeTab.value, SelectedMethod)
 })
 
@@ -72,7 +101,6 @@ function onSelect(event: SelectedModel) {
 }
 
 watch(servicesAndMethods, (servicesAndMethods) => {
-  
   if (!SelectedMethod.value) {
     if (servicesAndMethods && servicesAndMethods[0]?.methods?.[0]) {
       SelectedMethod.value = {
@@ -99,8 +127,8 @@ function onSubmitParams(params: string) {
     service,
     method,
   } = activeTab.value
-
-  if (!(host || service || method || params)) {
+ 
+  if (!(host && service && method && params)) {
     return
   }
 
@@ -143,6 +171,8 @@ const schema = computed(() => {
   } as Record<string, any>)
 })
 
+watch(schema, i => console.log(i))
+
 function mapType(type: string,) {
   switch (type) {
     case "TYPE_STRING":
@@ -153,32 +183,6 @@ function mapType(type: string,) {
   }
 }
 </script>
-
-<template>
-  <div>
-    <Tabs
-      v-model="activeTabID"
-      :tabs="tabs"
-      @create="create"
-      @close="del($event)"
-    />
-    <TopBar :host="activeTab?.host" @host="onHost"/>
-    <InputForm
-      v-if="servicesAndMethods && SelectedMethod"
-      :selected="SelectedMethod"
-      @update:selected="onSelect"
-
-      :services="servicesAndMethods"
-
-      :params-value="activeTab.params"
-      @update:params-value="onSubmitParams"
-
-      :json-schema="schema"
-    />
-    <div>{{ callData }}</div>
-    <!-- <HelloWorld /> -->
-  </div>
-</template>
 
 <style scoped>
 </style>
