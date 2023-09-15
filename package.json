@@ -20,7 +20,8 @@
   "workspaces": [
     "client",
     "server",
-    "types"
+    "types",
+    "proto-to-json-shema"
   ],
   "dependencies": {
     "tsx": "^3.12.7",

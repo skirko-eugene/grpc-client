@@ -1,0 +1,14 @@
+{
+  "name": "proto-to-json-shema",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "peerDependencies": {
+    "protobufjs": "^7.2.5"
+  }
+}

@@ -1,5 +1,9 @@
 import { Ref, computed } from "vue";
-import { MethodsList, ReflectionDescriptor, Res } from '../services/descriptor'
+import { Res } from '../services/descriptor'
+import { MethodsList, ReflectionDescriptor } from 'types/reflection'
+import {
+  mapSchemaToJSON,
+} from 'proto-to-json-shema'
 
 export const useServiceMethods = (data: Ref<Res<ReflectionDescriptor>[] | undefined>) => {
   const result = computed(() => {
@@ -15,11 +19,10 @@ export const useServiceMethods = (data: Ref<Res<ReflectionDescriptor>[] | undefi
 
       return {
         ...item,
-        methods: Object.entries(service[1])
+        methods: Object.entries(service[1]),
+        schema: mapSchemaToJSON(item.definition)
       }
     })
-
-
 
     return services
   })

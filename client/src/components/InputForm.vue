@@ -8,16 +8,17 @@
   
     <div
       v-if="selected.method"
-      ref="editorContainer"
+      ref="el"
       class="InputForm__editor"
     ></div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch } from 'vue';
+import { computed, watch } from 'vue';
 import { KeyCode, KeyMod } from 'monaco-editor'
 import { useEditor } from '../hooks/useMonaco';
+import { Schema } from 'proto-to-json-shema/creations';
 
 export interface SelectedModel {
   service: string;
@@ -30,7 +31,8 @@ interface Props {
   selected: SelectedModel
   services: SelectionItem[]
   paramsValue: string
-  jsonSchema: any
+  jsonSchema?: Schema[]
+  filepath: string
 }
 
 const props = defineProps<Props>()
@@ -56,15 +58,18 @@ const inputSelectValue = computed({
   }
 })
 
-const editorContainer = ref<HTMLElement>()
 const {
+  el,
   editor,
-} = useEditor(editorContainer, {
-  defaultValue: props.paramsValue || '{\n\t\n}',
-  contextmenu: false,
-  minimap: false,
-  schema: computed(() => props.jsonSchema)
-})
+} = useEditor(
+  computed(() => props.jsonSchema),
+  {
+    defaultValue: props.paramsValue || '{\n\t\n}',
+    contextmenu: false,
+    minimap: false,
+    filepath: props.filepath
+  }
+)
 
 watch(editor, item => {
   if (!item) {

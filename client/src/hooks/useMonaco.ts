@@ -1,4 +1,5 @@
 import * as monaco from 'monaco-editor'
+import { Schema } from 'proto-to-json-shema/creations'
 import {watch, Ref, ref, shallowRef, onUnmounted, computed, MaybeRef,} from 'vue'
 
 let counter = 0
@@ -10,16 +11,13 @@ interface Props {
   readonly?: boolean
   minimap?: boolean
   contextmenu?: boolean
-  schema: MaybeRef<any>
+  filepath: string
 }
 
-export const useEditor = (el: Ref<HTMLElement | undefined>, options?: Props) => {
+export const useEditor = (schema: Ref<Schema[] | undefined>, options: Props) => {
+  const el = ref<HTMLElement>()
   const editor = shallowRef<monaco.editor.IStandaloneCodeEditor>()
-  const schema = options?.schema ?? {}
-  const name = `input${counter++}.json`
-  const uri = monaco.Uri.parse(`file:///jsons/${name}`)
-
-  console.log(schema);
+  const uri = monaco.Uri.parse(options.filepath)
   
   watch(schema, (schema) => {
     console.log(schema, '====');
@@ -27,39 +25,13 @@ export const useEditor = (el: Ref<HTMLElement | undefined>, options?: Props) => 
     if (!schema) {
       return
     }
-    const isUpdate = monaco.languages.json.jsonDefaults.diagnosticsOptions.schemas?.find(item => {
-      return item.fileMatch?.[0] === uri.toString()
+    
+    monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+      validate: true,
+      schemas: schema,
+      schemaValidation: 'error',
     })
 
-    const item = {
-      uri: uri.toString() + 'schema',
-      fileMatch: [name],
-      schema: JSON.parse(JSON.stringify(schema))
-    }
-
-    if (isUpdate) {
-      monaco.languages.json.jsonDefaults.diagnosticsOptions.schemas!.splice(
-        monaco.languages.json.jsonDefaults.diagnosticsOptions.schemas!.indexOf(isUpdate),
-        1,
-        item
-      )
-
-      monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
-        validate: true,
-        schemas: monaco.languages.json.jsonDefaults.diagnosticsOptions.schemas,
-        schemaValidation: 'error',
-      })
-
-    } else {
-      const schema = monaco.languages.json.jsonDefaults.diagnosticsOptions.schemas ? 
-        (monaco.languages.json.jsonDefaults.diagnosticsOptions.schemas.push(item), monaco.languages.json.jsonDefaults.diagnosticsOptions.schemas):
-        [item]
-
-      monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
-        validate: true,
-        schemas: schema
-      })
-    }
   }, {
     immediate: true,
   })
@@ -120,6 +92,7 @@ export const useEditor = (el: Ref<HTMLElement | undefined>, options?: Props) => 
   })
 
   return {
+    el,
     editor,
     schema,
     value,

@@ -43,7 +43,7 @@ router.get('/reflection', async (req, res) => {
       }
     })
   )
-
+  res.setHeader('Content-Type', 'application/json')
   res.send(hostServices)
 })
 
@@ -77,6 +77,8 @@ router.get('/descriptor', async (req, res) => {
     .filter((item): item is string => typeof item === 'string')
     .map(async item => {
       const descriptor = await connection.getDescriptorBySymbol(item)
+      const a = descriptor.getPackageDefinition()
+      debugger
 
       const definition = JSON.stringify(descriptor.getPackageDefinition(), (key, value)   => {
         if (key === 'fileDescriptorProtos') {
@@ -91,8 +93,11 @@ router.get('/descriptor', async (req, res) => {
         definition: definition
       }
     })
+
+  const response = await Promise.all(result)
   
-  res.send(await Promise.all(result))
+  res.setHeader('Content-Type', 'application/json')
+  res.send(response)
 })
 
 import {

@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "tsx src/index",
+    "inspect": "tsx --inspect src/index",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

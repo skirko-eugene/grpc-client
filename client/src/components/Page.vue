@@ -18,6 +18,7 @@
       @update:params-value="onSubmitParams"
 
       :json-schema="schema"
+      :filepath="filepath"
     />
     <div>{{ callData }}</div>
     <!-- <HelloWorld /> -->
@@ -35,6 +36,7 @@ import Tabs from './Tabs.vue'
 import TopBar from './TopBar.vue';
 import InputForm, { SelectionItem, SelectedModel } from './InputForm.vue';
 import { useCall } from '../hooks/useCall';
+import { createSchemaLink, getNamespace } from 'proto-to-json-shema';
 
 const {
   tabsData: tabs,
@@ -140,48 +142,48 @@ function onSubmitParams(params: string) {
   })
 }
 
-
+const filepath = 'file:///jsons/input'
 const schema = computed(() => {
   const {
     service,
     method,
   } = activeTab.value
 
-  const selectedMethodDefinition = mapped.value
+  const serviceDefinition = mapped.value
     ?.find(item => item?.service === service)
-    ?.methods
-    .find(([methodName]) => methodName === method)
 
+  if (!serviceDefinition) {
+    return
+  }
+
+  const selectedMethodDefinition = serviceDefinition
+    .methods
+    .find(([methodName]) => methodName === method)
 
   if (!selectedMethodDefinition) {
     return
   }
 
+  const namespace = getNamespace(service)
+
   const [, methodDef] = selectedMethodDefinition
 
-  return methodDef.requestType.type.field.reduce((acc, item) => {
-    acc.properties[item.name] = {
-      type: mapType(item.type) || item.typeName
+  const link = createSchemaLink(methodDef.requestType.type.name, namespace)
+
+  return serviceDefinition.schema.map(item => {
+    if (item.uri === link) {
+      return {
+        ...item,
+        fileMatch: [filepath]
+      }
     }
 
-    return acc
-  }, {
-    type: 'object',
-    properties: {}
-  } as Record<string, any>)
+    return item
+  })
 })
 
 watch(schema, i => console.log(i))
 
-function mapType(type: string,) {
-  switch (type) {
-    case "TYPE_STRING":
-      return 'string'
-  
-    default:
-      break;
-  }
-}
 </script>
 
 <style scoped>
