@@ -1,10 +1,6 @@
 import * as monaco from 'monaco-editor'
 import { Schema } from 'proto-to-json-shema/creations'
-import {watch, Ref, ref, shallowRef, onUnmounted, computed, MaybeRef,} from 'vue'
-
-let counter = 0
-// @ts-ignore
-window.monaco = monaco
+import {watch, Ref, ref, shallowRef, onUnmounted, computed, MaybeRef, unref} from 'vue'
 
 interface Props {
   defaultValue?: string
@@ -14,14 +10,11 @@ interface Props {
   filepath: string
 }
 
-export const useEditor = (schema: Ref<Schema[] | undefined>, options: Props) => {
+export const useEditor = (schema: Ref<Schema[] | undefined>, options: MaybeRef<Props>) => {
   const el = ref<HTMLElement>()
   const editor = shallowRef<monaco.editor.IStandaloneCodeEditor>()
-  const uri = monaco.Uri.parse(options.filepath)
   
   watch(schema, (schema) => {
-    console.log(schema, '====');
-    
     if (!schema) {
       return
     }
@@ -54,21 +47,40 @@ export const useEditor = (schema: Ref<Schema[] | undefined>, options: Props) => 
     monaco.editor.setTheme(data)
   })
 
+  watch(() => unref(options), (opts, oldOpts) => {
+    if (oldOpts.filepath !== opts.filepath) {
+      const uri = monaco.Uri.parse(opts.filepath)
+
+      const models = monaco.editor.getModels().map(item => item.uri.toString())
+      if (models.includes(uri.toString())) {
+        monaco.editor.getModels().forEach(model => model.dispose());
+      }
+      
+      const model = monaco.editor.createModel(opts.defaultValue ?? '', 'json', uri)
+      editor.value?.setModel(model)
+    }
+  })
+
 
   watch(el, async (el) => {
     if (!el) {
       return
     }
-    const model = monaco.editor.createModel(options?.defaultValue ?? '', 'json', uri)
+
+    const opts = unref(options)
+    const uri = monaco.Uri.parse(opts.filepath)
+
+    monaco.editor.getModels().forEach(model => model.dispose());
+    const model = monaco.editor.createModel(opts.defaultValue ?? '', 'json', uri)
 
     editor.value = monaco.editor.create(el, {
       model,
       theme: theme.value,
-      readOnly: options?.readonly,
+      readOnly: opts.readonly,
       minimap: {
-        enabled: options?.minimap,
+        enabled: opts.minimap,
       },
-      contextmenu: options?.contextmenu,
+      contextmenu: opts.contextmenu,
     });
 
     return () => {

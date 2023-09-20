@@ -48,13 +48,6 @@ const {
 
 const SelectedMethod = ref<SelectedModel>()
 
-if (activeTab.value && activeTab.value.service && activeTab.value.method) {
-  SelectedMethod.value = {
-    service: activeTab.value.service,
-    method: activeTab.value.method
-  }
-}
-
 watch(SelectedMethod, SelectedMethod => {
   Object.assign(activeTab.value, SelectedMethod)
 })
@@ -114,6 +107,22 @@ watch(servicesAndMethods, (servicesAndMethods) => {
 })
 
 
+watch(activeTab, activeTab => {
+  if (activeTab && activeTab.service && activeTab.method) {
+    SelectedMethod.value = {
+      service: activeTab.service,
+      method: activeTab.method
+    }
+  } else if (servicesAndMethods.value) {
+    SelectedMethod.value = {
+      service: servicesAndMethods.value[0].service,
+      method: servicesAndMethods.value[0].methods[0]
+    }
+  }
+}, {
+  immediate: true
+})
+
 
 const {
   // isLoading: callIsLoading,
@@ -142,7 +151,9 @@ function onSubmitParams(params: string) {
   })
 }
 
-const filepath = 'file:///jsons/input'
+const filepath = computed(() => {
+  return 'file:///jsons/input/' + activeTab.value.id
+})
 const schema = computed(() => {
   const {
     service,
@@ -174,15 +185,13 @@ const schema = computed(() => {
     if (item.uri === link) {
       return {
         ...item,
-        fileMatch: [filepath]
+        fileMatch: [filepath.value]
       }
     }
 
     return item
   })
 })
-
-watch(schema, i => console.log(i))
 
 </script>
 

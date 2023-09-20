@@ -58,18 +58,25 @@ const inputSelectValue = computed({
   }
 })
 
+const jsonSchema = computed(() => props.jsonSchema)
+
 const {
   el,
   editor,
+  value,
 } = useEditor(
-  computed(() => props.jsonSchema),
-  {
-    defaultValue: props.paramsValue || '{\n\t\n}',
+  jsonSchema,
+  computed(() => ({
+    defaultValue: getValue(props.paramsValue),
     contextmenu: false,
     minimap: false,
-    filepath: props.filepath
-  }
+    filepath: props.filepath,
+  }))
 )
+
+watch(() => props.filepath, () => {
+  value.value = getValue(props.paramsValue)
+})
 
 watch(editor, item => {
   if (!item) {
@@ -86,6 +93,10 @@ watch(editor, item => {
     },
   })
 })
+
+function getValue(val: string){
+  return val || '{\n\t\n}'
+}
 
 </script>
 

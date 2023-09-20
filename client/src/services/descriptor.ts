@@ -36,7 +36,6 @@ export function descriptor (opts: Props | Props2) {
   return fetch(url)
     .then(res => res.json() as Promise<Res[]>)
     .then(res => res.map(item => {
-      console.log(item.definition);
       
       return {
         ...item,
