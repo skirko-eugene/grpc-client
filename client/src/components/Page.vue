@@ -6,7 +6,7 @@
       @create="create"
       @close="del($event)"
     />
-    <TopBar :host="activeTab?.host" @host="onHost"/>
+    <TopBar :host="activeTab?.host" @host="onHost" :isLoading="isReflectionLoading" :fetch-error="reflectionError"/>
     <InputForm
       v-if="servicesAndMethods && SelectedMethod"
       :selected="SelectedMethod"
@@ -20,21 +20,20 @@
       :json-schema="schema"
       :filepath="filepath"
     />
-    <div>{{ callData }}</div>
-    <!-- <HelloWorld /> -->
+    <OutputForm :result="activeTab.result"/>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { useTabs, } from '../hooks/useTabs'
-import { useReflection } from '../hooks/useReflection';
+import { useReflection2 } from '../hooks/useReflection';
 import { useDescriptor } from '../hooks/useDescriptor';
-import { ServicesResponse } from 'types';
 import { useServiceMethods } from '../hooks/useServiceMethods';
 import Tabs from './Tabs.vue'
 import TopBar from './TopBar.vue';
 import InputForm, { SelectionItem, SelectedModel } from './InputForm.vue';
+import OutputForm from './OutputForm.vue';
 import { useCall } from '../hooks/useCall';
 import { createSchemaLink, getNamespace } from 'proto-to-json-shema';
 
@@ -54,25 +53,45 @@ watch(SelectedMethod, SelectedMethod => {
 
 function onHost(host: string) {
   activeTab.value.host = host
-  mutateAsync([host])
 }
 
 const {
-  data,
-  mutateAsync,
-} = useReflection()
+  data: reflectionData,
+  isLoading: isReflectionLoading,
+  // isFetching: isReflectionFetching,
+  error: reflectionError
+} = useReflection2(
+  computed(() => tabs.value.map(item => item.host))
+)
 
-if (activeTab.value.host) {
-  mutateAsync([activeTab.value.host])
-}
+const hostReflectionData = computed(() => {
+  return reflectionData.value?.find((service) => service.host === activeTab.value.host)
+})
 
-const services = computed(() => {
-  return data.value?.find((service): service is ServicesResponse => service.host === activeTab.value.host) 
+const descriptorParams = computed(() => {
+  if (!hostReflectionData.value) {
+    return
+  }
+
+  const {
+    host,
+    services,
+    error,
+  } = hostReflectionData.value
+
+  if (typeof error === "string") {
+    return
+  }
+
+  return {
+    host,
+    services,
+  }
 })
 
 const {
   data: descriptorData,
-} = useDescriptor(services)
+} = useDescriptor(descriptorParams)
 
 const mapped = useServiceMethods(descriptorData)
 
@@ -126,11 +145,10 @@ watch(activeTab, activeTab => {
 
 const {
   // isLoading: callIsLoading,
-  data: callData,
   mutateAsync: callMutateAsync,
 } = useCall()
 
-function onSubmitParams(params: string) {
+async function onSubmitParams(params: string) {
   activeTab.value.params = params
 
   const {
@@ -143,12 +161,14 @@ function onSubmitParams(params: string) {
     return
   }
 
-  callMutateAsync({
+  const result = await callMutateAsync({
     host,
     service,
     method,
     params: JSON.parse(params),
   })
+
+  activeTab.value.result = result
 }
 
 const filepath = computed(() => {

@@ -1,9 +1,10 @@
 import { useLocalStorage } from '@vueuse/core'
-import { computed, onMounted, watch } from 'vue'
+import { computed, } from 'vue'
 
 export type Host = string & {}
 export type ServiceName = string & {}
 export type MethodName = string & {}
+export type InputParams = string & {}
 
 
 export type TabData = {
@@ -12,7 +13,8 @@ export type TabData = {
   host: Host
   service: ServiceName
   method: MethodName
-  params: string
+  cache: Record<`${ServiceName}:${MethodName}`, InputParams>
+  params: InputParams
   result: string
 }
 
@@ -74,6 +76,7 @@ export function useTabs() {
       host: lastTab?.host ?? '',
       service: '',
       method: '',
+      cache: {},
       params: '',
       result: '',
     }
