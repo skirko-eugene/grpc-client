@@ -74,7 +74,7 @@ export interface SchemaObject {
   required: string[]
 }
 
-export type SchemaTypes = SchemaObject | SchemaArray | SchemaString | SchemaNumber | SchemaInt | SchemaBool | SchemaEnum | SchemaRef
+export type SchemaTypes = SchemaObject | SchemaArray | SchemaString | SchemaNumber | SchemaInt | SchemaBool | SchemaEnum | SchemaRef | SchemaArray
 
 export interface SchemaString {
   type: 'string'

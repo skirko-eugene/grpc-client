@@ -1,5 +1,5 @@
 
-import { ReflectionDescriptor, Message, Service, Method, TypeEnum, EnumType, MethodName, } from 'types/reflection'
+import { ReflectionDescriptor, Message, Service, Method, TypeEnum, EnumType, MethodName, Field, Label, } from 'types/reflection'
 import * as create from './creations'
 
 export function createSchemaLink(name: string, namespace: string) {
@@ -24,6 +24,9 @@ export function mapSchemaToJSON(global: ReflectionDescriptor): MapSchemaToJSONTy
 
   const schema: create.Schema[] = types
     .map(([name, item]) => {
+      if (item.type.name === 'qwe') {
+        debugger
+      }
       const data = getSchemaObject(item, namespace)
       if (!data) {
         return
@@ -94,53 +97,28 @@ function getSchemaObject(item: Message | EnumType, namespace: string): create.Sc
     const obj: create.SchemaObject['properties'] = {}
     const { field } = item.type
 
-    return create.createObject(
+    const schemaObject = create.createObject(
       field.reduce((acc, item) => {
-          switch (item.type) {
-            case TypeEnum.TypeString:
-              acc[item.name] = create.createString()
-              break;
-            case TypeEnum.TypeInt32:
-            case TypeEnum.TypeSint32:
-            case TypeEnum.TypeUint32:
-            case TypeEnum.TypeInt64:
-            case TypeEnum.TypeSint64:
-            case TypeEnum.TypeUint64:
-              acc[item.name] = create.createInt()
-              break;
-
-            case TypeEnum.TypeFixed32:
-            case TypeEnum.TypeFixed64:
-            case TypeEnum.TypeSFixed32:
-            case TypeEnum.TypeSFixed64:
-            case TypeEnum.TypeDouble:
-            case TypeEnum.TypeFloat:
-              acc[item.name] = create.createNumber()
-
-            case TypeEnum.TypeBoolean:
-              acc[item.name] = create.createBoolean()
-              break;
-
-            case TypeEnum.TypeBytes:
-              acc[item.name] = create.createArray({
-                type: 'array',
-                items: create.createNumber()
-              })
-              break;
-          
-            case TypeEnum.TypeEnum:
-            case TypeEnum.TypeMessage:
-              acc[item.name] = create.createRef(createSchemaLink(item.typeName, namespace))
-              break;
-
-            default:
-              console.log(item)
-              throw new Error('Нет типа')
+        if (item.oneofIndex !== undefined) {
+          acc[
+            
+          ]  
         }
+        acc[item.name] = mapField(item, namespace)
+
+        if (item.label === Label.LabelRepeated) {
+          acc[item.name] = create.createArray({
+            type: 'array',
+            items: acc[item.name]
+          })
+        }
+        
         return acc
       }, obj),
       []
     )
+
+    return schemaObject
   }
   throw new Error('qweqweqweq')
 }
@@ -164,4 +142,44 @@ function filterMessageAndEnum(global: ReflectionDescriptor) {
     messagesAndEnumsEntries,
     servicesEntries,
   ] as const
+}
+
+
+function mapField(item: Field, namespace: string) {
+    switch (item.type) {
+      case TypeEnum.TypeString:
+        return create.createString()
+      case TypeEnum.TypeInt32:
+      case TypeEnum.TypeSint32:
+      case TypeEnum.TypeUint32:
+      case TypeEnum.TypeInt64:
+      case TypeEnum.TypeSint64:
+      case TypeEnum.TypeUint64:
+        return create.createInt()
+
+      case TypeEnum.TypeFixed32:
+      case TypeEnum.TypeFixed64:
+      case TypeEnum.TypeSFixed32:
+      case TypeEnum.TypeSFixed64:
+      case TypeEnum.TypeDouble:
+      case TypeEnum.TypeFloat:
+        return create.createNumber()
+
+      case TypeEnum.TypeBoolean:
+        return create.createBoolean()
+
+      case TypeEnum.TypeBytes:
+        return create.createArray({
+          type: 'array',
+          items: create.createNumber()
+        })
+    
+      case TypeEnum.TypeEnum:
+      case TypeEnum.TypeMessage:
+        return create.createRef(createSchemaLink(item.typeName, namespace))
+
+      default:
+        console.log(item)
+        throw new Error('Нет типа')
+  }
 }
