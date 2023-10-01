@@ -1,10 +1,5 @@
 import { HOST } from "../constants";
-import { ReflectionDescriptor } from 'types/reflection'
-
-export interface Res<T = string> {
-  service: string;
-  definition: T;
-}
+import { DescriptorResponseType } from 'types/responses'
 
 interface Props {
   host: string,
@@ -34,12 +29,5 @@ export function descriptor (opts: Props | Props2) {
   }
 
   return fetch(url)
-    .then(res => res.json() as Promise<Res[]>)
-    .then(res => res.map(item => {
-      
-      return {
-        ...item,
-        definition: JSON.parse(item.definition),
-      } as Res<ReflectionDescriptor>
-    }))
+    .then(res => res.json() as Promise<DescriptorResponseType>)
 }

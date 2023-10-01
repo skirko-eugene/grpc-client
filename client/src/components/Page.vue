@@ -1,14 +1,22 @@
 <template>
-  <div>
+  <div class="Page">
     <Tabs
+      class="Page__tabs"
       v-model="activeTabID"
       :tabs="tabs"
       @create="create"
       @close="del($event)"
     />
-    <TopBar :host="activeTab?.host" @host="onHost" :isLoading="isReflectionLoading" :fetch-error="reflectionError"/>
+    <TopBar
+      class="Page__topBar"
+      :host="activeTab?.host"
+      @host="onHost"
+      :isLoading="isReflectionLoading"
+      :fetch-error="reflectionError"
+    />
     <InputForm
       v-if="servicesAndMethods && SelectedMethod"
+      class="Page__inputForm"
       :selected="SelectedMethod"
       @update:selected="onSelect"
 
@@ -20,7 +28,9 @@
       :json-schema="schema"
       :filepath="filepath"
     />
-    <OutputForm :result="activeTab.result"/>
+    <OutputForm
+      class="Page__outputForm"
+      :result="activeTab.result"/>
   </div>
 </template>
 
@@ -29,13 +39,11 @@ import { computed, ref, watch } from 'vue';
 import { useTabs, } from '../hooks/useTabs'
 import { useReflection2 } from '../hooks/useReflection';
 import { useDescriptor } from '../hooks/useDescriptor';
-import { useServiceMethods } from '../hooks/useServiceMethods';
 import Tabs from './Tabs.vue'
 import TopBar from './TopBar.vue';
 import InputForm, { SelectionItem, SelectedModel } from './InputForm.vue';
 import OutputForm from './OutputForm.vue';
 import { useCall } from '../hooks/useCall';
-import { createSchemaLink, getNamespace } from 'proto-to-json-shema';
 
 const {
   tabsData: tabs,
@@ -93,18 +101,21 @@ const {
   data: descriptorData,
 } = useDescriptor(descriptorParams)
 
-const mapped = useServiceMethods(descriptorData)
-
 const servicesAndMethods = computed(() => {
-  return mapped.value
+  
+  return descriptorData.value
     ?.map<SelectionItem | undefined>(item => {
       if (!item) {
         return
       }
 
+      if (!item.definition.methods) {
+        debugger
+      }
+
       return {
         service: item.service,
-        methods: item.methods.map(([name]) => name)
+        methods: item.definition.methods.map((item) => item.name)
       }
     })
     .filter((item): item is SelectionItem => !!item)
@@ -174,13 +185,14 @@ async function onSubmitParams(params: string) {
 const filepath = computed(() => {
   return 'file:///jsons/input/' + activeTab.value.id
 })
+
 const schema = computed(() => {
   const {
     service,
     method,
   } = activeTab.value
 
-  const serviceDefinition = mapped.value
+  const serviceDefinition = descriptorData.value
     ?.find(item => item?.service === service)
 
   if (!serviceDefinition) {
@@ -188,21 +200,17 @@ const schema = computed(() => {
   }
 
   const selectedMethodDefinition = serviceDefinition
-    .methods
-    .find(([methodName]) => methodName === method)
+    .definition.methods
+    .find(({name}) => name === method)
 
   if (!selectedMethodDefinition) {
     return
   }
 
-  const namespace = getNamespace(service)
+  const { requestURI } = selectedMethodDefinition
 
-  const [, methodDef] = selectedMethodDefinition
-
-  const link = createSchemaLink(methodDef.requestType.type.name, namespace)
-
-  return serviceDefinition.schema.map(item => {
-    if (item.uri === link) {
+  const finalSchema = descriptorData.value?.[0].definition.schema.map(item => {
+    if (item.uri === requestURI) {
       return {
         ...item,
         fileMatch: [filepath.value]
@@ -210,10 +218,36 @@ const schema = computed(() => {
     }
 
     return item
-  })
+  }) ?? [];
+
+  // обрезаем ссылочность, а то не удается передать через postMessage из-за какой-то ссылочной связи
+  return JSON.parse(JSON.stringify(finalSchema))
 })
 
 </script>
 
 <style scoped>
+.Page {
+  display: grid;
+  grid-template-areas: 
+    'tabs tabs'
+    'top top'
+    'left right'
+  ;
+  grid-template-columns: repeat(2, 50%);
+}
+
+.Page__tabs {
+  grid-area: tabs;
+}
+.Page__topBar {
+  grid-area: top;
+}
+.Page__inputForm {
+  grid-area: left;
+}
+.Page__outputForm {
+  grid-area: right;
+}
+
 </style>

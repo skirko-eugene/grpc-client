@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { createReflectionClient } from './utils/grpc';
 import { ServerReflectionResponse } from 'types';
+import { mapSchemaToJSON } from 'proto-to-json-shema'
 
 export const router = Router()
 
@@ -74,36 +75,66 @@ router.get('/descriptor', async (req, res) => {
   }
 
   const connection = createReflectionClient(host as string)
+  // const ignoredKeys = new Set([
+  //   "nestedType",
+  //   "enumType",
+  //   "extensionRange",
+  //   "extension",
+  //   "oneofDecl",
+  //   "reservedRange",
+  //   "reservedName",
+  //   "fileDescriptorProtos",
+  // ])
 
   const result = services
     .filter((item): item is string => typeof item === 'string')
-    .map(async item => {
+    .filter(item => item !== 'grpc.reflection.v1alpha.ServerReflection')
+    .map(async (item, index) => {
+      // Если отослать сразу много запросов то reflection сервер может и не овтетить на все, вводим задержку на запрос
+      await new Promise(res => setTimeout(res, 25 * index))
+      console.log(item, 'start');
+      
       const descriptor = await connection.getDescriptorBySymbol(item)
-      const a = descriptor.getPackageDefinition()
+      console.log(item, 'started');
+      
+      const def = descriptor.getPackageDefinition()
 
-      const definition = JSON.stringify(descriptor.getPackageDefinition(), (key, value)   => {
-        if (key === 'fileDescriptorProtos') {
-          return undefined
-        }
+      debugger
+      const data = mapSchemaToJSON(def)
+      
+      // const definition = JSON.stringify(def, (key, value)   => {
+      //   if (value === 'Protocol Buffer 3 DescriptorProto') {
+      //     return undefined
+      //   }
 
-        return value
-      })
+      //   if (ignoredKeys.has(key)) {
+      //     return undefined
+      //   }
+
+      //   return value
+      // })
+
+      // return {
+      //   service: item,
+      //   definition: definition
+      // }
 
       return {
         service: item,
-        definition: definition
+        definition: data
       }
     })
 
   const response = await Promise.all(result)
 
   res.setHeader('Content-Type', 'application/json')
-  res.send(response)
+  res.send(response as DescriptorResponseType)
 })
 
 import {
   credentials,
 } from '@grpc/grpc-js'
+import { DescriptorResponseType } from 'types/responses';
 
 router.get('/call', async (req, res) => {
   const host = req.query.host

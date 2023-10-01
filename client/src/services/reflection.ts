@@ -4,7 +4,7 @@ import { ServerReflectionResponse } from 'types';
 export function reflection (hosts: string[]){
   const url = new URL(`http://${HOST}/reflection`)
 
-  hosts.forEach(host => {
+  Array.from(new Set(hosts)).forEach(host => {
     url.searchParams.append('host', host)
   })
 

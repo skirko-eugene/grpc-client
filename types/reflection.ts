@@ -1,7 +1,7 @@
 
 // типы сгенерированы руками и их нужно дополнять, они не полные
 export type ReflectionDescriptor = {
-  [key: string]: Message | EnumType | MethodsList
+  [key: string]: Message | EnumType | Service
 }
 
 export interface Message {
@@ -43,9 +43,26 @@ export enum Label {
 export enum TypeEnum {
   TypeEnum = "TYPE_ENUM",
   TypeInt32 = "TYPE_INT32",
+  TypeSint32 = "TYPE_SINT32",
+  TypeUint32 = "TYPE_UINT32",
+
   TypeInt64 = "TYPE_INT64",
+  TypeSint64 = "TYPE_SINT64",
+  TypeUint64 = "TYPE_UINT64",
+
+  TypeFixed32 = "TYPE_FIXED32",
+  TypeFixed64 = "TYPE_FIXED64",
+  TypeSFixed32 = "TYPE_SFIXED32",
+  TypeSFixed64 = "TYPE_SFIXED64",
+  
+  TypeFloat = "TYPE_FLOAT",
+  TypeDouble = "TYPE_DOUBLE",
+
   TypeMessage = "TYPE_MESSAGE",
   TypeString = "TYPE_STRING",
+  TypeBoolean = "TYPE_BOOL",
+  TypeBytes = "TYPE_BYTES",
+
 }
 
 export interface OneofDecl {
@@ -71,7 +88,7 @@ export interface Value {
 }
 
 export type MethodName = string & {};
-export type MethodsList = {
+export type Service = {
   [key: MethodName]: Method
 }
 

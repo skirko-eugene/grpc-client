@@ -15,7 +15,7 @@ export type TabData = {
   method: MethodName
   cache: Record<`${ServiceName}:${MethodName}`, InputParams>
   params: InputParams
-  result: string
+  result: Record<string, unknown> | undefined
 }
 
 type TabsData = TabData[]
@@ -78,7 +78,7 @@ export function useTabs() {
       method: '',
       cache: {},
       params: '',
-      result: '',
+      result: undefined,
     }
 
     tabsData.value.push(newItem)

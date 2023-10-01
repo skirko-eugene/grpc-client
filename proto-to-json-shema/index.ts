@@ -1,17 +1,24 @@
 
-import { ReflectionDescriptor, Message, Field, TypeEnum, EnumType, } from 'types/reflection'
+import { ReflectionDescriptor, Message, Service, Method, TypeEnum, EnumType, MethodName, } from 'types/reflection'
 import * as create from './creations'
 
 export function createSchemaLink(name: string, namespace: string) {
   return `http://${namespace}/${name}`
 }
 
+const RegexpLastWord = /\.\w+$/i
+
 export function getNamespace(path: string) {
-  return path.replace(/\.\w+$/i, '')
+  return path.replace(RegexpLastWord, '')
 }
 
-export function mapSchemaToJSON(global: ReflectionDescriptor): create.Schema[] {
-  const types = filterMessageAndEnum(global)
+export type MapSchemaToJSONType = {
+  schema: create.Schema[]
+  methods: MappedMethod[]
+}
+
+export function mapSchemaToJSON(global: ReflectionDescriptor): MapSchemaToJSONType {
+  const [types, services] = filterMessageAndEnum(global)
 
   const namespace = getNamespace(types[0][0])
 
@@ -29,7 +36,55 @@ export function mapSchemaToJSON(global: ReflectionDescriptor): create.Schema[] {
     })
     .filter((item): item is create.Schema => !!item)
 
-  return schema
+  if (services.length !== 1) {
+    throw new Error(`Сервисов больше одного, что странно: ` + services.map(item => item[0]))
+  }
+
+  const [service] = services
+
+  const methods = Object.entries(service[1])
+    .map(item => mapMethod(item, namespace))
+
+  return {
+    schema,
+    methods,
+  }
+}
+
+export interface MappedMethod {
+  name: MethodName;
+  requestType: string;
+  responseType: string;
+  isRequestStream: boolean;
+  isResponseStream: boolean;
+  requestURI: string;
+  responseURI: string;
+}
+
+function mapMethod([name, method]:[MethodName, Method], namespace: string): MappedMethod {
+  const {
+    requestStream,
+    responseStream,
+    requestType: {
+      type: {
+        name: reqTypeName,
+      }
+    },
+    responseType: {
+      type: {
+        name: resTypeName,
+      }
+    }
+  } = method
+  return {
+    name: name,
+    requestType: reqTypeName,
+    responseType: resTypeName,
+    isRequestStream: requestStream,
+    isResponseStream: responseStream,
+    requestURI: createSchemaLink(reqTypeName, namespace),
+    responseURI: createSchemaLink(resTypeName, namespace),
+  }
 }
 
 function getSchemaObject(item: Message | EnumType, namespace: string): create.SchemaEnum | create.SchemaObject {
@@ -41,21 +96,38 @@ function getSchemaObject(item: Message | EnumType, namespace: string): create.Sc
 
     return create.createObject(
       field.reduce((acc, item) => {
-        if ([TypeEnum.TypeString, TypeEnum.TypeInt32, TypeEnum.TypeInt64].includes(item.type)) {
           switch (item.type) {
             case TypeEnum.TypeString:
               acc[item.name] = create.createString()
               break;
             case TypeEnum.TypeInt32:
+            case TypeEnum.TypeSint32:
+            case TypeEnum.TypeUint32:
             case TypeEnum.TypeInt64:
+            case TypeEnum.TypeSint64:
+            case TypeEnum.TypeUint64:
               acc[item.name] = create.createInt()
               break;
+
+            case TypeEnum.TypeFixed32:
+            case TypeEnum.TypeFixed64:
+            case TypeEnum.TypeSFixed32:
+            case TypeEnum.TypeSFixed64:
+            case TypeEnum.TypeDouble:
+            case TypeEnum.TypeFloat:
+              acc[item.name] = create.createNumber()
+
+            case TypeEnum.TypeBoolean:
+              acc[item.name] = create.createBoolean()
+              break;
+
+            case TypeEnum.TypeBytes:
+              acc[item.name] = create.createArray({
+                type: 'array',
+                items: create.createNumber()
+              })
+              break;
           
-            default:
-              throw new Error('Нет типа')
-          }
-        } else {
-          switch (item.type) {
             case TypeEnum.TypeEnum:
             case TypeEnum.TypeMessage:
               acc[item.name] = create.createRef(createSchemaLink(item.typeName, namespace))
@@ -64,7 +136,6 @@ function getSchemaObject(item: Message | EnumType, namespace: string): create.Sc
             default:
               console.log(item)
               throw new Error('Нет типа')
-          }
         }
         return acc
       }, obj),
@@ -75,11 +146,22 @@ function getSchemaObject(item: Message | EnumType, namespace: string): create.Sc
 }
 
 function filterMessageAndEnum(global: ReflectionDescriptor) {
-  return Object.entries(global).filter((el): el is [string, EnumType | Message] => {
+  const entries = Object.entries(global)
+  const messagesAndEnumsEntries: [string, (Message | EnumType)][] = []
+
+  const servicesEntries: [string, Service][] = []
+
+  entries.forEach((el) => {
     const [, item] = el
     if (item.type && ('name' in item.type || 'value' in item.type)) {
-      return true
+      messagesAndEnumsEntries.push(el as [string, Message | EnumType]);
+      return
     }
-    return false
+    servicesEntries.push(el as [string, Service])
   })
+
+  return [
+    messagesAndEnumsEntries,
+    servicesEntries,
+  ] as const
 }

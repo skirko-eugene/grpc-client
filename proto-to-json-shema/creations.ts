@@ -41,6 +41,21 @@ export function createInt(options?: SchemaBaseNumber): SchemaInt {
   }
 }
 
+export function createBoolean(): SchemaBool {
+  return {
+    type: 'boolean'
+  }
+}
+
+export function createArray(options: SchemaArray): SchemaArray {
+  
+  const obj: Pick<SchemaArray, 'type'> = {
+    type: 'array',
+  }
+  
+  return Object.assign(obj, options);
+}
+
 export function createEnum(values: string[]): SchemaEnum {
   return {
     enum: values
@@ -55,9 +70,11 @@ export function createRef(link: string) {
 
 export interface SchemaObject {
   type: 'object'
-  properties: Record<string, SchemaObject | SchemaString | SchemaNumber | SchemaInt | SchemaEnum | SchemaRef>
+  properties: Record<string, SchemaTypes>
   required: string[]
 }
+
+export type SchemaTypes = SchemaObject | SchemaArray | SchemaString | SchemaNumber | SchemaInt | SchemaBool | SchemaEnum | SchemaRef
 
 export interface SchemaString {
   type: 'string'
@@ -81,6 +98,20 @@ export interface SchemaNumber extends SchemaBaseNumber {
 export interface SchemaInt extends SchemaBaseNumber {
   type: 'integer'
 }
+
+export interface SchemaBool {
+  type: 'boolean'
+}
+
+export type _arr = {
+  type: 'array',
+  uniqueItems?: boolean
+  minItems?: number
+  maxItems?: number
+}
+export type SchemaArray = (_arr & { items: SchemaTypes, }) | 
+(_arr & { prefixItems: SchemaTypes[], items?: false | SchemaTypes }) |
+(_arr & { contains: SchemaTypes, minContains?: number, maxContains?: number })
 
 export interface SchemaEnum {
   enum: string[]
