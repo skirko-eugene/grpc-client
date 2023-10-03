@@ -99,11 +99,11 @@ function getSchemaObject(item: Message | EnumType, namespace: string): create.Sc
 
     const schemaObject = create.createObject(
       field.reduce((acc, item) => {
-        if (item.oneofIndex !== undefined) {
-          acc[
+        // if (item.oneofIndex !== undefined) {
+        //   acc[
             
-          ]  
-        }
+        //   ]  
+        // }
         acc[item.name] = mapField(item, namespace)
 
         if (item.label === Label.LabelRepeated) {

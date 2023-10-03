@@ -1,0 +1,35 @@
+@font-face {
+  font-family: 'NotoSansRegular';
+  font-display: swap;
+  font-weight: normal;
+  font-style: normal;
+  src: url('/fonts/notosans-regular.woff2') format('woff2'),
+       url('/fonts/notosans-regular.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'NotoSansMedium';
+  font-display: swap;
+  font-weight: normal;
+  font-style: normal;
+  src: url('/fonts/notosans-medium.woff2') format('woff2'),
+       url('/fonts/notosans-medium.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'NotoSansBold';
+  font-display: swap;
+  font-weight: normal;
+  font-style: normal;
+  src: url('/fonts/notosans-bold.woff2') format('woff2'),
+       url('/fonts/notosans-bold.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'NotoSansBlack';
+  font-display: swap;
+  font-weight: normal;
+  font-style: normal;
+  src: url('/fonts/notosans-black.woff2') format('woff2'),
+       url('/fonts/notosans-black.woff') format('woff');
+}

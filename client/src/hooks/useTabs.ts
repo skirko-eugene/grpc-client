@@ -72,7 +72,7 @@ export function useTabs() {
 
     const newItem = {
       id: 'tab' + Date.now(),
-      title: 'Новый таб' + ' ' + tabsData.value.length,
+      title: 'Untitled request' + ' ' + tabsData.value.length,
       host: lastTab?.host ?? '',
       service: '',
       method: '',

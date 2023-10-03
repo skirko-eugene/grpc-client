@@ -1,6 +1,6 @@
 <template>
   <div class="Page">
-    <Tabs
+    <TabsBlock
       class="Page__tabs"
       v-model="activeTabID"
       :tabs="tabs"
@@ -39,7 +39,7 @@ import { computed, ref, watch } from 'vue';
 import { useTabs, } from '../hooks/useTabs'
 import { useReflection2 } from '../hooks/useReflection';
 import { useDescriptor } from '../hooks/useDescriptor';
-import Tabs from './Tabs.vue'
+import TabsBlock from './TabsBlock'
 import TopBar from './TopBar.vue';
 import InputForm, { SelectionItem, SelectedModel } from './InputForm.vue';
 import OutputForm from './OutputForm.vue';
