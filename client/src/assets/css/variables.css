@@ -1,4 +1,8 @@
 :root {
+  --radius-s: 4px;
+  --radius-m: 6px;
+  --radius-l: 8px;
+
 
   --success: 0, 166, 66;
   --warning: 255, 184, 0;

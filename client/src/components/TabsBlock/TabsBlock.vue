@@ -15,15 +15,19 @@
       ><IconCross /></div>
     </div>
     <div class="tabsBlock__create" @click="emit('create')">
-      <PlusCircle class="tabsBlock__create-icon"/>
+      <IconPlus />
+    </div>
+    <div class="tabsBlock__more">
+      <IconMore />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import PlusCircle from '../../icons/PlusCircle.vue'
 import IconCross from '../../icons/IconCross.vue';
+import IconPlus from '../../icons/IconPlus.vue';
+import IconMore from '../../icons/IocnMore.vue';
 import { Props, Tab } from './interfaces';
 
 const props = defineProps<Props>();
@@ -49,6 +53,7 @@ const computedClass = computed(() => {
   display: flex;
   align-items: center;
   border-bottom: 1px solid rgb(var(--gray03));
+  user-select: none;
 }
 
 .tabsBlock__tab {
@@ -64,6 +69,11 @@ const computedClass = computed(() => {
   font-size: 12px;
   letter-spacing: 0.3px;
   cursor: pointer;
+  &:hover {
+    & .tabsBlock__close {
+      display: flex;
+    }
+  }
 }
 
 .tabsBlock__tab--active {
@@ -83,12 +93,6 @@ const computedClass = computed(() => {
   & .tabsBlock__close {
     display: flex;
   }
-}
-
-.tabsBlock__create {
-  display: flex;
-  margin: 7px 2px;
-  cursor: pointer;
 }
 
 .tabsBlock__create-icon {
@@ -113,5 +117,27 @@ const computedClass = computed(() => {
       --color: rgb(255,255,255);
     }
   }
+}
+
+.tabsBlock__create, .tabsBlock__more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-left: 20px;
+  border-radius: var(--radius-m);
+  --color: rgb(var(--gray05));
+  cursor: pointer;
+  &:hover {
+    background-color: rgba(var(--gray05), 0.1);
+    & svg {
+      --color: rgb(255,255,255);
+    }
+  }
+}
+
+.tabsBlock__more {
+  margin-left: 8px;
 }
 </style>
