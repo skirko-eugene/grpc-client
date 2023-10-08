@@ -1,33 +1,28 @@
 <template>
   <div
-    class="hostInput"
+    class="inputHost"
     :class="computedClass"
   >
-    <label for="hostInput">API</label>
-    <div class="hostInput__list"><IconList /></div>
-    <input type="text" v-model="val" id="hostInput" @blur="focusOut" @focus="focusIn" />
+    <label for="inputHost">API</label>
+    <div class="inputHost__list"><IconList /></div>
+    <input type="text" v-model="val" id="inputHost" @blur="focusOut" @focus="focusIn" />
     <span v-if="isLoading">Загркзка</span>
     <span v-if="fetchError">{{fetchError.message}}</span>
-    <div class="hostInput__enter"><IconEnter /></div>
+    <div class="inputHost__enter"><IconEnter /></div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
-import IconEnter from '../icons/IconEnter.vue';
-import IconList from '../icons/IconList.vue';
+import { type InputHostProps } from './interfaces';
+import IconEnter from '../../icons/IconEnter.vue';
+import IconList from '../../icons/IconList.vue';
 
-interface Props {
-  host: string;
-  isLoading: boolean;
-  fetchError: Error;
-}
-
-const props = defineProps<Props>()
+const props = defineProps<InputHostProps>();
 
 const emit = defineEmits<{
   host: [string],
-}>()
+}>();
 
 const val = computed({
   get(){
@@ -49,20 +44,19 @@ const focusOut = () => {
 
 const computedClass = computed(() => {
   return {
-    'hostInput--focus': focusFlag.value,
+    'inputHost--focus': focusFlag.value,
   }
 });
 </script>
 
 <style lang="postcss" scoped>
-.hostInput {
+.inputHost {
   max-width: 300px;
   border-radius: var(--radius-s);
   border: 1px solid rgb(var(--gray03));
   background-color: rgb(var(--gray02));
   display: flex;
   align-items: center;
-  margin: 40px;
   position: relative;
   & label {
     display: block;
@@ -75,7 +69,7 @@ const computedClass = computed(() => {
   }
 }
 
-.hostInput--focus {
+.inputHost--focus {
   border-color: rgb(var(--gray04))
 }
 
@@ -95,7 +89,7 @@ input[type="text"] {
   letter-spacing: 0.3px;
 }
 
-.hostInput__list {
+.inputHost__list {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -116,7 +110,7 @@ input[type="text"] {
     }
   }
 }
-.hostInput__enter {
+.inputHost__enter {
   display: flex;
   align-items: center;
   justify-content: center;

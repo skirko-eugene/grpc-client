@@ -23,10 +23,10 @@ const marked = computed(() => {
 
 <style >
 .qwe {
-  margin: 20px;
   padding: 10px;
-  background: rgba(0, 0, 0, .1);
-  border-radius: 20px;
+  border: 1px solid rgb(var(--gray03));
+  border-radius: var(--radius-l);
+  color: rgb(var(--gray07));
 }
 .json-markup-key {
   color: #ff8282;

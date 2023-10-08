@@ -1,36 +1,30 @@
 <template>
-  <div class="Page">
-    <TabsBlock
-      class="Page__tabs"
-      v-model="activeTabID"
-      :tabs="tabs"
-      @create="create"
-      @close="del($event)"
-    />
-    <TopBar
-      class="Page__topBar"
-      :host="activeTab?.host"
-      @host="onHost"
-      :isLoading="isReflectionLoading"
-      :fetch-error="reflectionError"
-    />
+  <TabsBlock
+    v-model="activeTabID"
+    :tabs="tabs"
+    @create="create"
+    @close="del($event)"
+  />
+  <TopSection
+    :host="activeTab?.host"
+    :isLoading="isReflectionLoading"
+    :fetchError="reflectionError"
+    @host="onHost"
+  />
+  <div class="mainSection">
     <InputForm
       v-if="servicesAndMethods && SelectedMethod"
-      class="Page__inputForm"
       :selected="SelectedMethod"
-      @update:selected="onSelect"
-
       :services="servicesAndMethods"
-
       :params-value="activeTab.params"
-      @update:params-value="onSubmitParams"
-
       :json-schema="schema"
       :filepath="filepath"
+      @update:selected="onSelect"
+      @update:params-value="onSubmitParams"
     />
     <OutputForm
-      class="Page__outputForm"
-      :result="activeTab.result"/>
+      :result="activeTab.result"
+    />
   </div>
 </template>
 
@@ -40,7 +34,7 @@ import { useTabs, } from './hooks/useTabs'
 import { useReflection2 } from './hooks/useReflection';
 import { useDescriptor } from './hooks/useDescriptor';
 import TabsBlock from './components/TabsBlock';
-import TopBar from './components/TopBar.vue';
+import TopSection from './components/TopSection';
 import InputForm, { SelectionItem, SelectedModel } from './components/InputForm.vue';
 import OutputForm from './components/OutputForm.vue';
 import { useCall } from './hooks/useCall';
@@ -229,27 +223,34 @@ const schema = computed(() => {
 <style lang="postcss">
 @import "./assets/css/common.css";
 
-.Page {
-  display: grid;
-  grid-template-areas: 
-    'tabs tabs'
-    'top top'
-    'left right'
-  ;
-  grid-template-columns: repeat(2, 50%);
-}
-
 .Page__tabs {
   grid-area: tabs;
 }
-.Page__topBar {
+.PageTopSection {
   grid-area: top;
+  margin: 40px;
 }
 .Page__inputForm {
   grid-area: left;
+  margin-left: 40px;
 }
 .Page__outputForm {
   grid-area: right;
+  margin-right: 40px;
+}
+
+.mainSection {
+  width: 100%;
+  display: flex;
+  gap: 20px;
+  padding-left: 40px;
+  padding-right: 40px;
+  & .InputForm {
+    width: 50%;
+  }
+  & .qwe {
+    width: 50%;
+  }
 }
 
 </style>

@@ -5,7 +5,6 @@
         <option v-for="method in item.methods" :value="item.service + ':' + method">{{ method }}</option>
       </optgroup>
     </select>
-  
     <div
       v-if="selected.method"
       ref="el"
@@ -100,7 +99,7 @@ function getValue(val: string){
 
 </script>
 
-<style scoped>
+<style lang="postcss">
 .InputForm {
   height: 400px;
   position: relative;
@@ -115,5 +114,11 @@ function getValue(val: string){
   right: 20px;
   top: 1em;
   z-index: 99;
+}
+.InputForm__editor {
+  width: 100%;
+  border: 1px solid rgb(var(--gray03));
+  border-radius: var(--radius-l);
+  overflow: hidden;
 }
 </style>
