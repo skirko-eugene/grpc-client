@@ -37,10 +37,9 @@ const val = computed({
 .HostInput {
   width: 100%;
   background: rgb(var(--color-2));
-  
   display: flex;
   align-items: center;
-  grid-area: topline;
+  grid-area: top;
 }
 
 input[type="text"] {

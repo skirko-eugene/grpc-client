@@ -65,6 +65,7 @@ const computedClass = computed(() => {
   border-right: 1px solid rgb(var(--gray04));
   position: relative;
   background-color: rgb(var(--gray02));
+  color: rgb(var(--gray06));
   font-family: var(--mediumFont);
   font-size: 12px;
   letter-spacing: 0.3px;
@@ -78,6 +79,7 @@ const computedClass = computed(() => {
 
 .tabsBlock__tab--active {
   background-color: rgb(var(--gray03));
+  color: rgb(var(--gray07));
   &:after {
     content: '';
     display: block;
@@ -114,7 +116,7 @@ const computedClass = computed(() => {
   &:hover {
     background-color: rgba(var(--gray05), 0.1);
     & svg {
-      --color: rgb(255,255,255);
+      --color: rgb(var(--gray07));
     }
   }
 }
@@ -132,7 +134,7 @@ const computedClass = computed(() => {
   &:hover {
     background-color: rgba(var(--gray05), 0.1);
     & svg {
-      --color: rgb(255,255,255);
+      --color: rgb(var(--gray07));
     }
   }
 }
