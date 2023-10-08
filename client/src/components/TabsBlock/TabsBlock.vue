@@ -61,6 +61,7 @@ const computedClass = computed(() => {
   align-items: center;
   justify-content: space-between;
   min-width: 220px;
+  height: 100%;
   padding: 10px 10px 10px 20px;
   border-right: 1px solid rgb(var(--gray04));
   position: relative;
