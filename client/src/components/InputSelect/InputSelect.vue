@@ -66,11 +66,11 @@ const selectedPerson = computed({
   --dropDownMaxWidth: 500px;
   --fontSize: 13px;
   --padding: 12px;
-  --borderColor: 32,32,36;
-  --backgroundColor: 28,28,31;
-  --textColor: 231,231,232;
+  --borderColor: var(--gray03);
+  --backgroundColor: var(--gray02);
+  --textColor: var(--gray07);
   --selectColor: 255,255,255;
-  --iconChevronColor: 93,93,96;
+  --iconChevronColor: var(--gray05);
   position: relative;
 }
 .inputSelect--undefined {
