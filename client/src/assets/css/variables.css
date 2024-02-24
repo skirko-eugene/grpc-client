@@ -3,7 +3,6 @@
   --radius-m: 6px;
   --radius-l: 8px;
 
-
   --success: 0, 166, 66;
   --warning: 255, 184, 0;
   --error: 235, 30, 79;
@@ -17,6 +16,8 @@
   --gray07: 231, 231, 232;
 
   --yellow01: 253, 201, 89;
+
+  --brown01: 66, 53,35;
 
   --defaultFont: 'NotoSansRegular', Arial, sans-serif;
   --regularFont: 'NotoSansRegular', Arial, sans-serif;

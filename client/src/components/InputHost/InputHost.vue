@@ -3,9 +3,16 @@
     class="inputHost"
     :class="computedClass"
   >
-    <label for="inputHost">API</label>
     <div class="inputHost__list"><IconList /></div>
-    <input type="text" v-model="val" id="inputHost" @blur="focusOut" @focus="focusIn" />
+    <input
+      placeholder="Выберите API"
+      type="text"
+      v-model="val"
+      id="inputHost"
+      @blur="focusOut"
+      @focus="focusIn"
+      autocomplete="off"
+    />
     <span v-if="isLoading">Загркзка</span>
     <span v-if="fetchError">{{fetchError.message}}</span>
     <div class="inputHost__enter"><IconEnter /></div>
@@ -80,7 +87,7 @@ input[type="text"] {
   margin: 0;
   outline: 0;
   border: 0;
-  padding: 5px 10px 6px;
+  padding: 0 10px;
   background-color: transparent;
   color: rgb(var(--gray07));
   font-family: var(--defaultFont);
@@ -95,8 +102,8 @@ input[type="text"] {
   justify-content: center;
   flex-shrink: 0;
   border-right: 1px solid rgb(var(--gray03));
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   overflow: hidden;
   cursor: pointer;
   & svg {
@@ -115,8 +122,8 @@ input[type="text"] {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   overflow: hidden;
   cursor: pointer;
   & svg {
